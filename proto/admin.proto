@@ -1,0 +1,55 @@
+syntax = "proto3";
+
+package admin;
+
+option go_package = ".;admin"; 
+
+service AdminService {
+    rpc Signup (SignupRequest) returns (SignupResponse);
+    rpc Login (LoginRequest) returns (LoginResponse);
+    rpc BlockUser (UserIDRequest) returns (Response);
+    rpc UnblockUser (UserIDRequest) returns (Response);
+    rpc SuspendUser (UserIDRequest) returns (Response);
+    rpc GetAllUsers (EmptyRequest) returns (UserListResponse);
+}
+
+message SignupRequest {
+    string email = 1;
+    string password = 2;
+}
+
+message SignupResponse {
+    string message = 1;
+    bool success = 2;
+}
+
+message LoginRequest {
+    string email = 1;
+    string password = 2;
+}
+
+message LoginResponse {
+    string token = 1;
+    bool success = 2;
+}
+
+message UserIDRequest {
+    uint32 user_id = 1;
+}
+
+message EmptyRequest {}
+
+message User {
+    uint32 id = 1;
+    string email = 2;
+    string status = 3;
+}
+
+message UserListResponse {
+    repeated User users = 1;
+}
+
+message Response {
+    bool success = 1;
+    string message = 2;
+}
