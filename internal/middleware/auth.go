@@ -1,76 +1,73 @@
 package middleware
 
 import (
-	"context"
+	"fmt"
 	"net/http"
 	"strings"
+	"github.com/Prototype-1/api-gateway-service/config"
+	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
-	"google.golang.org/grpc/metadata"
-	cf "github.com/Prototype-1/api-gateway-service/config"
 )
 
-type UserClaims struct {
-	Role string `json:"role"`
-	jwt.StandardClaims
+type TokenClaims struct {
+	Role string `json:"role"` 
+	jwt.RegisteredClaims
 }
 
-func ExtractToken(r *http.Request) (string, error) {
-	authHeader := r.Header.Get("Authorization")
-	if authHeader == "" {
-		return "", http.ErrNoCookie
-	}
-	parts := strings.Split(authHeader, " ")
-	if len(parts) != 2 {
-		return "", http.ErrNoCookie
-	}
 
-	return parts[1], nil
-}
-
-func VerifyToken(tokenStr string) (*UserClaims, error) {
-	token, err := jwt.ParseWithClaims(tokenStr, &UserClaims{}, func(token *jwt.Token) (interface{}, error) {
-		return [] byte (cf.JWTSecretKey), nil
+func ValidateToken(tokenString, secretKey string) (*TokenClaims, error) {
+	token, err := jwt.ParseWithClaims(tokenString, &TokenClaims{}, func(token *jwt.Token) (interface{}, error) {
+		return []byte(secretKey), nil
 	})
-
 	if err != nil {
 		return nil, err
 	}
 
-	claims, ok := token.Claims.(*UserClaims)
+	claims, ok := token.Claims.(*TokenClaims)
 	if !ok || !token.Valid {
-		return nil, err
+		return nil, fmt.Errorf("invalid token")
 	}
 
 	return claims, nil
 }
 
-func AuthMiddleware(next http.Handler, requiredRole string) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		tokenStr, err := ExtractToken(r)
-		if err != nil {
-			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+func AuthMiddleware(requiredRole string) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		authHeader := c.GetHeader("Authorization")
+		if authHeader == "" {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization header is missing"})
+			c.Abort()
+			return
+		}
+		tokenParts := strings.Split(authHeader, " ")
+		if len(tokenParts) != 2 || tokenParts[0] != "Bearer" {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid Authorization format"})
+			c.Abort()
 			return
 		}
 
-		claims, err := VerifyToken(tokenStr)
+		tokenString := tokenParts[1]
+		var secretKey string
+		if requiredRole == "admin" {
+			secretKey = config.AdminSecretKey
+		} else {
+			secretKey = config.UserSecretKey
+		}
+
+		claims, err := ValidateToken(tokenString, secretKey)
 		if err != nil {
-			http.Error(w, "Invalid token", http.StatusUnauthorized)
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
+			c.Abort()
 			return
 		}
 
 		if claims.Role != requiredRole {
-			http.Error(w, "Forbidden", http.StatusForbidden)
+			c.JSON(http.StatusForbidden, gin.H{"error": "Insufficient permissions"})
+			c.Abort()
 			return
 		}
 
-		ctx := context.WithValue(r.Context(), "userID", claims.Subject)
-		r = r.WithContext(ctx)
-
-		next.ServeHTTP(w, r)
-	})
-}
-
-func AttachMetadata(ctx context.Context, token string) context.Context {
-	md := metadata.Pairs("authorization", "Bearer "+token)
-	return metadata.NewOutgoingContext(ctx, md)
+		c.Set("user_role", claims.Role)
+		c.Next()
+	}
 }

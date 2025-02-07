@@ -7,7 +7,11 @@ import (
 	"github.com/joho/godotenv"
 )
 
-var JWTSecretKey string
+var (
+	JWTSecretKey   string
+	AdminSecretKey string
+	UserSecretKey  string
+)
 
 func LoadConfig() {
 	err := godotenv.Load(".env")
@@ -16,9 +20,16 @@ func LoadConfig() {
 	}
 
 	JWTSecretKey = os.Getenv("JWT_SECRET_KEY")
+	AdminSecretKey = os.Getenv("ADMIN_SECRET_KEY")
+	UserSecretKey = os.Getenv("USER_SECRET_KEY")
+
 	if JWTSecretKey == "" {
 		log.Fatal("JWT_SECRET_KEY is required in .env file")
 	}
-	log.Println("JWT Secret Key Loaded: ", JWTSecretKey)
+	if AdminSecretKey == "" {
+		log.Fatal("ADMIN_SECRET_KEY is required in .env file")
+	}
+	if UserSecretKey == "" {
+		log.Fatal("USER_SECRET_KEY is required in .env file")
+	}
 }
-

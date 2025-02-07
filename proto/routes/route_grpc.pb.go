@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.5.1
 // - protoc             v5.29.1
-// source: routes/route.proto
+// source: proto/routes/route.proto
 
 package routes
 
@@ -231,5 +231,5 @@ var RouteService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "routes/route.proto",
+	Metadata: "proto/routes/route.proto",
 }
