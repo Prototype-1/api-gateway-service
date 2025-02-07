@@ -1,0 +1,61 @@
+syntax = "proto3";
+
+package routes;
+
+option go_package = "./proto/routes;routes"; 
+
+service RouteService {
+    rpc AddRoute (AddRouteRequest) returns (AddRouteResponse);
+    rpc UpdateRoute (UpdateRouteRequest) returns (UpdateRouteResponse);
+    rpc DeleteRoute (DeleteRouteRequest) returns (DeleteRouteResponse);
+    rpc GetAllRoutes (GetAllRoutesRequest) returns (GetAllRoutesResponse);
+}
+
+message AddRouteRequest {
+    string route_name = 1;
+    int32 start_stop_id = 2;
+    int32 end_stop_id = 3;
+    int32 category_id = 4;
+}
+
+message AddRouteResponse {
+    string message = 1;
+}
+
+message UpdateRouteRequest {
+    int32 route_id = 1;
+    string route_name = 2;
+    int32 start_stop_id = 3;
+    int32 end_stop_id = 4;
+    int32 category_id = 5;
+}
+
+message UpdateRouteResponse {
+    string message = 1;
+}
+
+message DeleteRouteRequest {
+    int32 route_id = 1;
+}
+
+message DeleteRouteResponse {
+    string message = 1;
+}
+
+message GetAllRoutesRequest {}
+
+message GetAllRoutesResponse {
+    repeated Route routes = 1;
+}
+
+message Route {
+    int32 route_id = 1;
+    string route_name = 2;
+    int32 start_stop_id = 3;
+    int32 end_stop_id = 4;
+    int32 category_id = 5;
+    string created_at = 6;
+    string updated_at = 7;
+}
+
+//protoc --go_out=. --go-grpc_out=. proto/admin_routes.proto

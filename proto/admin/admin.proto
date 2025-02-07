@@ -1,0 +1,35 @@
+syntax = "proto3";
+package admin;
+option go_package = "./proto/admin;admin";
+
+service AdminService {
+  rpc AdminSignup (AdminSignupRequest) returns (AuthResponse);
+  rpc AdminLogin (AdminLoginRequest) returns (AuthResponse);
+  rpc AdminGetDetails (AdminRequest) returns (AdminResponse);
+}
+
+message AdminSignupRequest {
+  string email = 1;
+  string password = 2;
+}
+
+message AdminLoginRequest {
+  string email = 1;
+  string password = 2;
+}
+
+message AuthResponse {
+  string access_token = 1;
+  string refresh_token = 2;
+  string message = 3;
+}
+
+message AdminRequest {
+  uint32 admin_id = 1;
+}
+
+message AdminResponse {
+  uint32 id = 1;
+  string email = 2;
+  string message = 3;
+}

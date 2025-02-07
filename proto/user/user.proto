@@ -1,0 +1,52 @@
+syntax = "proto3";
+package user;
+option go_package = "./proto/user;user";
+
+service UserService {
+  rpc Signup (SignupRequest) returns (AuthResponse);
+  rpc Login (LoginRequest) returns (AuthResponse);
+  rpc GetAllUsers (Empty) returns (UserList);
+  rpc BlockUser (UserRequest) returns (StatusResponse);
+  rpc UnblockUser (UserRequest) returns (StatusResponse);
+  rpc SuspendUser (UserRequest) returns (StatusResponse);
+}
+
+// Messages
+message Empty {}
+
+message SignupRequest {
+  string name = 1;
+  string email = 2;
+  string password = 3;
+}
+
+message LoginRequest {
+  string email = 1;
+  string password = 2;
+}
+
+message AuthResponse {
+  string access_token = 1;
+  string refresh_token = 2;
+  string message = 3;
+}
+
+message UserRequest {
+  uint32 user_id = 1;
+}
+
+message StatusResponse {
+  string message = 1;
+}
+
+message User {
+  uint32 id = 1;
+  string name = 2;
+  string email = 3;
+  bool blocked_status = 4;
+  bool inactive_status = 5;
+}
+
+message UserList {
+  repeated User users = 1;
+}

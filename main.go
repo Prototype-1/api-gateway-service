@@ -1,30 +1,14 @@
 package main
 
 import (
-	"fmt"
 	"log"
+	"net/http"
 
-	"github.com/Prototype-1/api-gateway-service/internal/handlers"
-	pb "github.com/Prototype-1/api-gateway-service/proto"
-	"github.com/gin-gonic/gin"
-	"google.golang.org/grpc"
+	"github.com/Prototype-1/api-gateway-service/config" 
 )
 
 func main() {
-	conn, err := grpc.Dial("localhost:5001", grpc.WithInsecure())
-	if err != nil {
-		log.Fatalf("Failed to connect to admin service: %v", err)
-	}
-	defer conn.Close()
-
-	client := pb.NewAdminServiceClient(conn)
-
-	router := gin.Default()
-
-
-	handlers.SetupRoutes(router, client)
-
-	serverPort := ":8080"
-	fmt.Println("API Gateway running on port", serverPort)
-	log.Fatal(router.Run(serverPort))
+	config.LoadConfig()
+	log.Println("API Gateway running on port 8080")
+	http.ListenAndServe(":8080", nil)
 }
