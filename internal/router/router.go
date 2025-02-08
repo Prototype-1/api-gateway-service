@@ -129,29 +129,6 @@ func SetupRoutes(router *gin.Engine, adminClient adminpb.AdminServiceClient, use
 		}
 		c.JSON(http.StatusOK, resp)
 	})
-
-	adminRoutes.POST("/routes/add", func(c *gin.Context) {
-		var req routespb.AddRouteRequest
-		if err := c.ShouldBindJSON(&req); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
-			return
-		}
-		token := c.GetHeader("Authorization")
-		if token == "" {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization token missing"})
-			return
-		}
-		token = strings.TrimPrefix(token, "Bearer ")
-		ctx := metadata.AppendToOutgoingContext(context.Background(), "authorization", token)
-		resp, err := routeClient.AddRoute(ctx, &req)
-		if err != nil {
-			log.Printf("gRPC AddRoute call failed: %v", err)
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-			return
-		}
-	
-		c.JSON(http.StatusOK, resp)
-	})
 	
 	adminRoutes.POST("/routes/add", func(c *gin.Context) {
 		var req routespb.AddRouteRequest
