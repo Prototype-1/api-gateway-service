@@ -16,20 +16,20 @@ import (
 )
 
 func InitGRPCClients() (adminpb.AdminServiceClient, userpb.UserServiceClient, routespb.RouteServiceClient, error) {
-	adminConn, err := grpc.Dial("localhost:50051", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	adminConn, err := grpc.Dial("admin-auth-service:50051", grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Fatalf("Failed to connect to Admin Auth Service: %v", err)
 		return nil, nil, nil, err
 	}
 	adminClient := adminpb.NewAdminServiceClient(adminConn)
-	userConn, err := grpc.Dial("localhost:50052", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	userConn, err := grpc.Dial("user-auth-service:50052", grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Fatalf("Failed to connect to User Auth Service: %v", err)
 		return nil, nil, nil, err
 	}
 	userClient := userpb.NewUserServiceClient(userConn)
 
-	routesConn, err := grpc.Dial("localhost:50053", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	routesConn, err := grpc.Dial("admin-routes-service:50053", grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Fatalf("Failed to connect to Routes Service: %v", err)
 		return nil, nil, nil, err
