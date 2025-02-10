@@ -107,20 +107,7 @@ func SetupRoutes(router *gin.Engine, adminClient adminpb.AdminServiceClient, use
 		}
 		c.JSON(http.StatusOK, resp)
 	})
-	adminRoutes.POST("/users/block", func(c *gin.Context) {
-		var req userpb.UserRequest
-		if err := c.ShouldBindJSON(&req); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
-			return
-		}
-		resp, err := userClient.BlockUser(context.Background(), &req)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "gRPC call failed"})
-			return
-		}
-		c.JSON(http.StatusOK, resp)
-	})
-
+	
 	router.GET("/routes/get-all-routes", func(c *gin.Context) {
 		resp, err := routeClient.GetAllRoutes(context.Background(), &routespb.GetAllRoutesRequest{})
 		if err != nil {
