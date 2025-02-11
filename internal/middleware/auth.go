@@ -11,7 +11,7 @@ import (
 )
 
 type TokenClaims struct {
-	UserID uint   `json:"user_id"`
+	AdminID uint   `json:"admin_id"`
 	Role   string `json:"role"`
 	jwt.RegisteredClaims
 }
@@ -26,7 +26,6 @@ func ValidateToken(tokenString string) (*TokenClaims, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	claims, ok := token.Claims.(*TokenClaims)
 	if !ok || !token.Valid {
 		return nil, fmt.Errorf("invalid token")
@@ -64,7 +63,7 @@ func AuthMiddleware(requiredRole string) gin.HandlerFunc {
 			c.Abort()
 			return
 		}
-		c.Set("user_id", claims.UserID)
+		c.Set("user_id", claims.AdminID)
 		c.Set("user_role", claims.Role)
 
 		c.Next()

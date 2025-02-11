@@ -23,6 +23,8 @@ func LoadConfig() {
 	AdminSecretKey = os.Getenv("ADMIN_SECRET_KEY")
 	UserSecretKey = os.Getenv("USER_SECRET_KEY")
 
+	log.Println("Loaded JWT_SECRET_KEY:", JWTSecretKey)
+
 	if JWTSecretKey == "" {
 		log.Fatal("JWT_SECRET_KEY is required in .env file")
 	}
